@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feed Ferry - Real-time Food Donation Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-leaf"></i> Feed Ferry
+            </div>
+            <button class="nav-toggle" aria-label="Toggle navigation" onclick="toggleMobileNav()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="nav-buttons">
+                <button id="btnLogin" class="btn-login" onclick="openLoginModal()">Login</button>
+                <button id="btnRegister" class="btn-register" onclick="openRegisterModal()">Register</button>
+                <span id="userInfo" class="user-info" style="display:none;"></span>
+                <button id="btnLogout" class="btn-logout" onclick="logout()" style="display:none;">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero" id="home">
+        <div class="container">
+            <h1 class="hero-title">Welcome to Feed Ferry</h1>
+            <p class="hero-subtitle">Connect surplus food to those in need</p>
+            <div class="hero-buttons">
+                <button class="btn-primary" onclick="openLoginModal()">Get Started</button>
+                <button class="btn-secondary" onclick="document.querySelector('.about-section').scrollIntoView()">Learn More</button>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <h3 id="totalMeals">0</h3>
+                    <p>Meals Donated</p>
+                </div>
+                <div class="stat-item">
+                    <h3 id="totalNGOs">0</h3>
+                    <p>Active NGOs</p>
+                </div>
+                <div class="stat-item">
+                    <h3 id="totalCities">0</h3>
+                    <p>Cities Covered</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="problem-section">
+        <div class="container">
+            <h2 class="section-title">The Problem We Solve</h2>
+            <div class="problem-grid">
+                <div class="problem-card">
+                    <i class="fas fa-trash"></i>
+                    <h3>78M Tonnes Wasted</h3>
+                    <p>India wastes over 78 million tonnes of food annually</p>
+                </div>
+                <div class="problem-card">
+                    <i class="fas fa-heart-crack"></i>
+                    <h3>Hunger Crisis</h3>
+                    <p>Millions face food insecurity every day</p>
+                </div>
+                <div class="problem-card">
+                    <i class="fas fa-link-slash"></i>
+                    <h3>Missing Connection</h3>
+                    <p>No easy way between surplus and those in need</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="about-section" id="about">
+        <div class="container">
+            <div class="about-text">
+                <h2>About Feed Ferry</h2>
+                <p>Feed Ferry connects restaurants, hotels, events, and individuals with verified NGOs to ensure excess food reaches those who need it most.</p>
+                <p>Our mission is to eliminate food waste while fighting hunger through technology and community engagement.</p>
+                <div class="about-features">
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>GPS Matching</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Verified NGOs</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Real-time Tracking</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Community Support</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <i class="fas fa-user-plus"></i>
+                    <h3>Sign Up</h3>
+                    <p>Register as Donor, NGO, or Volunteer</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <i class="fas fa-utensils"></i>
+                    <h3>Post Food</h3>
+                    <p>Donors post available surplus food</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <i class="fas fa-robot"></i>
+                    <h3>Smart Match</h3>
+                    <p>AI matches food with nearest NGO</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <i class="fas fa-handshake"></i>
+                    <h3>Deliver</h3>
+                    <p>Volunteers deliver to people in need</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features-section">
+        <div class="container">
+            <h2 class="section-title">Our Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-map-location-dot"></i>
+                    <h3>Smart Location-based Pairing</h3>
+                    <p>Uses GPS to match food with nearest NGO</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-shield-check"></i>
+                    <h3>All NGOs Verified</h3>
+                    <p>Every organization is verified for authenticity</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-eye"></i>
+                    <h3>Track End-to-End</h3>
+                    <p>Follow your donation from start to finish</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>See Your Impact</h3>
+                    <p>View your contribution metrics and stats</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-mobile-screen-button"></i>
+                    <h3>Easy-to-use App</h3>
+                    <p>Simple interface for all user types</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-hands-helping"></i>
+                    <h3>Volunteer Network</h3>
+                    <p>Join our community of volunteers</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="impact-section">
+        <div class="container">
+            <h2 class="section-title">Our Impact</h2>
+            <div class="impact-grid">
+                <div class="impact-card">
+                    <i class="fas fa-leaf"></i>
+                    <h3>Environmental</h3>
+                    <p>Diverts food waste from landfills, reducing methane emissions</p>
+                </div>
+                <div class="impact-card">
+                    <i class="fas fa-people-group"></i>
+                    <h3>Social</h3>
+                    <p>Reduces hunger while building community care networks</p>
+                </div>
+                <div class="impact-card">
+                    <i class="fas fa-handshake"></i>
+                    <h3>Community</h3>
+                    <p>Creates meaningful connections between donors and receivers</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="container">
+            <h2>Join thousands in fighting hunger and food waste</h2>
+            <p style="margin-bottom: 2rem; font-size: 1.1rem;">Start your journey with Feed Ferry today</p>
+            <button class="btn-primary" onclick="openLoginModal()">Get Started Now</button>
+        </div>
+    </section>
+
+    <section class="contact-section" id="contact">
+        <div class="container">
+            <h2 class="section-title">Contact Us</h2>
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <h3>Get in Touch</h3>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h4>Email</h4>
+                            <p>contact@feedferry.com</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h4>Phone</h4>
+                            <p>+91 98765 43210</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-location-dot"></i>
+                        <div>
+                            <h4>Location</h4>
+                            <p>Maharashtra, India</p>
+                        </div>
+                    </div>
+                        <div class="contact-item">
+                            <i class="fab fa-instagram"></i>
+                            <div>
+                                <h4>Instagram</h4>
+                                <p><a href="https://www.instagram.com/feedferryofficial?igsh=MTI2ZzkyNGhkb2RoZg==" target="_blank" rel="noopener">instagram</a></p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <h4>Gmail</h4>
+                                <p><a href="mailto:feedferryofficial@gmail.com">feedferryofficial@gmail.com</a></p>
+                            </div>
+                        </div>
+                </div>
+                <div class="contact-form">
+                    <form onsubmit="handleContact(event)">
+                        <input type="text" id="contactName" placeholder="Your Name" required>
+                        <input type="email" id="contactEmail" placeholder="Your Email" required>
+                        <textarea id="contactMessage" placeholder="Your Message" rows="5" required></textarea>
+                        <button type="submit" class="btn-submit">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Feed Ferry</h3>
+                    <p>Fighting hunger and food waste through technology</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Follow Us</h4>
+                    <ul>
+                        <li><a href="#"><i class="fab fa-facebook"></i> Facebook</a></li>
+                        <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
+                        <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Feed Ferry. All rights reserved. Turning leftovers into lifelines.</p>
+            </div>
+        </div>
+    </footer>
+
+    <section class="dashboard-section" id="dashboardSection">
+        <div class="dashboard-container">
+            <div class="sidebar">
+                <button class="nav-btn active" onclick="switchTab('overview', event)">
+                    <i class="fas fa-chart-line"></i> Overview
+                </button>
+                <button class="nav-btn" id="btnDonations" style="display:none;" onclick="switchTab('donations', event)">
+                    <i class="fas fa-gift"></i> Post Food
+                </button>
+                <button class="nav-btn" id="btnListings" style="display:none;" onclick="switchTab('listings', event)">
+                    <i class="fas fa-list"></i> Available Food
+                </button>
+                <button class="nav-btn" id="btnNGOs" style="display:none;" onclick="switchTab('ngos', event)">
+                    <i class="fas fa-building"></i> NGOs
+                </button>
+                <button class="nav-btn" id="btnDonors" style="display:none;" onclick="switchTab('donors', event)">
+                    <i class="fas fa-user"></i> Donors
+                </button>
+                <button class="nav-btn" id="btnChat" onclick="switchTab('chat', event)">
+                    <i class="fas fa-comments"></i> Messages
+                </button>
+                <button class="nav-btn" id="btnAnalytics" onclick="switchTab('analytics', event)">
+                    <i class="fas fa-chart-bar"></i> Analytics
+                </button>
+                <button class="nav-btn" id="btnTracking" onclick="switchTab('tracking', event)">
+                    <i class="fas fa-map-marker-alt"></i> Track Donations
+                </button>
+            </div>
+
+            <div class="main-content">
+                <div id="overview" class="tab-content active">
+                    <h2>Dashboard Overview</h2>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <h4 id="dashTotalMeals">0</h4>
+                            <p>Total Meals Donated</p>
+                        </div>
+                        <div class="stat-box">
+                            <h4 id="dashTotalNGOs">0</h4>
+                            <p>Active NGOs</p>
+                        </div>
+                        <div class="stat-box">
+                            <h4 id="dashTotalUsers">0</h4>
+                            <p>Community Members</p>
+                        </div>
+                        <div class="stat-box">
+                            <h4 id="dashPendingDonations">0</h4>
+                            <p>Pending Donations</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="donations" class="tab-content">
+                    <h2>Post Food Donation</h2>
+                    <button class="btn-primary" onclick="openPostFoodModal()" style="margin-bottom: 1.5rem;">
+                        <i class="fas fa-plus"></i> Post New Donation
+                    </button>
+                    <div id="donationsList"></div>
+                </div>
+
+                <div id="listings" class="tab-content">
+                    <h2>Available Food Donations</h2>
+                    <div style="display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; margin: 1rem 0;">
+                        <select id="filterState" onchange="applyListingsFilters()">
+                            <option value="">All States</option>
+                        </select>
+                        <select id="filterDistrict" onchange="applyListingsFilters()">
+                            <option value="">All Districts</option>
+                        </select>
+                        <select id="filterCity" onchange="applyListingsFilters()">
+                            <option value="">All Cities</option>
+                        </select>
+                    </div>
+                    <div id="listingsList"></div>
+                </div>
+
+                <div id="ngos" class="tab-content">
+                    <h2>Registered NGOs</h2>
+                    <div id="ngosList"></div>
+                </div>
+
+                <div id="donors" class="tab-content">
+                    <h2>Available Donors</h2>
+                    <div id="donorsList"></div>
+                </div>
+
+                <div id="chat" class="tab-content">
+                    <h2>Messages</h2>
+                    <div style="display: grid; grid-template-columns: 250px 1fr; gap: 1rem; height: 500px;">
+                        <div style="background: var(--light); border-radius: 10px; overflow-y: auto; padding: 0.5rem;">
+                            <h4 style="padding: 1rem; margin: 0; background: var(--primary); color: white; border-radius: 5px; margin-bottom: 0.5rem;">Conversations</h4>
+                            <div id="conversationList"></div>
+                        </div>
+                        <div class="chat-container" style="height: 100%; display: flex; flex-direction: column;">
+                            <div id="chatHeader" style="background: var(--light); padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; font-weight: 600;">Select a conversation</div>
+                            <div class="chat-messages" id="chatMessages" style="flex: 1; overflow-y: auto; margin-bottom: 1rem;"></div>
+                            <div class="chat-input">
+                                <input type="text" id="messageInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
+                                <button onclick="sendMessage()">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="analytics" class="tab-content">
+                    <h2>Analytics & Impact</h2>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <h4 id="analyticsMeals">0</h4>
+                            <p>Your Donations</p>
+                        </div>
+                        <div class="stat-box">
+                            <h4 id="analyticsRecipients">0</h4>
+                            <p>People Helped</p>
+                        </div>
+                        <div class="stat-box">
+                            <h4 id="analyticsWastePrevented">0 kg</h4>
+                            <p>Waste Prevented</p>
+                        </div>
+                        <div class="stat-box">
+                            <h4 id="analyticsEmissionsSaved">0 kg</h4>
+                            <p>CO2 Saved</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tracking" class="tab-content">
+                    <h2>Track Your Donations</h2>
+                    <p style="margin-bottom: 2rem; color: var(--text); opacity: 0.8;">Monitor the status and location of your food donations in real-time</p>
+                    <div id="trackingList"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLoginModal()">&times;</span>
+            <h2>Login to Feed Ferry</h2>
+            <form onsubmit="handleLogin(event)">
+                <input type="email" id="loginEmail" placeholder="Email" required>
+                <input type="password" id="loginPassword" placeholder="Password" required>
+                <button type="submit" class="btn-submit">Login</button>
+            </form>
+            <p style="text-align: center; margin-top: 1rem;">
+                Don't have an account? <a href="#" onclick="closeLoginModal(); openRegisterModal();">Register here</a>
+            </p>
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--light);">
+                <p style="font-size: 0.9rem; color: var(--text); margin-bottom: 0.5rem;"><strong>Test Accounts:</strong></p>
+                <p style="font-size: 0.85rem;">Donor: donor@test.com / 123456</p>
+                <p style="font-size: 0.85rem;">NGO: ngo@test.com / 123456</p>
+                <p style="font-size: 0.85rem;">Volunteer: volunteer@test.com / 123456</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeRegisterModal()">&times;</span>
+            <h2>Register with Feed Ferry</h2>
+            <form onsubmit="handleRegister(event)">
+                <input type="text" id="userName" placeholder="Full Name" required>
+                <input type="email" id="userEmail" placeholder="Email" required>
+                <input type="password" id="userPassword" placeholder="Password" required>
+                <input type="text" id="userLocation" placeholder="City" required>
+                <select id="userRole" required>
+                    <option value="">Select Role</option>
+                    <option value="donor">Donor (Restaurant/Individual)</option>
+                    <option value="ngo">NGO (Non-profit)</option>
+                    <option value="volunteer">Volunteer (Delivery)</option>
+                </select>
+                <button type="submit" class="btn-submit">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="postFoodModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePostFoodModal()">&times;</span>
+            <h2>Post Food Donation</h2>
+            <form onsubmit="handlePostFood(event)" id="postFoodForm">
+                <input type="text" id="foodName" placeholder="Food name (e.g. Veg Biryani, Bread Loaves)" required>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                    <div>
+                        <label style="font-size: 0.85rem; margin-bottom: 0.25rem; display:block;">Food Type</label>
+                        <select id="foodCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="cooked">Cooked Food</option>
+                            <option value="raw">Raw Ingredients</option>
+                            <option value="bakery">Bakery Items</option>
+                            <option value="fruits">Fruits & Vegetables</option>
+                            <option value="dairy">Dairy Products</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85rem; margin-bottom: 0.25rem; display:block;">Veg / Non-veg</label>
+                        <select id="foodVegType" required>
+                            <option value="">Select</option>
+                            <option value="veg">Veg</option>
+                            <option value="non-veg">Non-veg</option>
+                            <option value="mixed">Mixed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 0.75rem;">
+                    <input type="number" id="foodQuantity" placeholder="Quantity" min="1" required>
+                    <select id="foodQuantityUnit" required>
+                        <option value="kg">kg</option>
+                        <option value="servings">Servings</option>
+                        <option value="packages">Packages</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label style="font-size: 0.85rem; margin-bottom: 0.25rem; display:block;">Expiry date & time</label>
+                    <input type="datetime-local" id="foodExpiry" required>
+                </div>
+
+                <div>
+                    <label style="font-size: 0.85rem; margin-bottom: 0.25rem; display:block;">Pickup address</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; margin-bottom: 0.5rem;">
+                        <select id="pickupState" required onchange="onPickupStateChange()">
+                            <option value="">State</option>
+                        </select>
+                        <select id="pickupDistrict" required onchange="onPickupDistrictChange()">
+                            <option value="">District</option>
+                        </select>
+                        <select id="pickupCity" required>
+                            <option value="">City</option>
+                        </select>
+                    </div>
+                    <textarea id="pickupAddressLine" placeholder="Full address / landmark" rows="2" required></textarea>
+                </div>
+
+                <textarea id="foodDescription" placeholder="Any extra details (spice level, packing, handling notes)..." rows="3"></textarea>
+
+                <p id="postFoodError" style="color: #e74c3c; font-size: 0.85rem; display:none; margin-top: 0.25rem;"></p>
+
+                <button type="submit" class="btn-submit">Post Donation</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html>
